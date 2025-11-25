@@ -5,6 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StorageModule } from './storage/storage.module';
 import configuration from './config/configuration';
 import { StorageOptions } from './storage/interfaces';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { databaseConfig } from './config/database-config';
 
 @Module({
   imports: [
@@ -22,6 +24,17 @@ import { StorageOptions } from './storage/interfaces';
           throw new Error('Storage config not found');
         }
         return storageConfig;
+      },
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (): Promise<TypeOrmModuleOptions> => {
+        return {
+          ...databaseConfig,
+          entities: [],
+          autoLoadEntities: true,
+        };
       },
     }),
   ],
